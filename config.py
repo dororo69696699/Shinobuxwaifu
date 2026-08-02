@@ -249,3 +249,13 @@ BOT_USERNAME: Optional[str] = field(
 INLINE_CACHE_TTL: int = int(os.getenv("INLINE_CACHE_TTL", "300"))
 USER_CACHE_TTL: int = int(os.getenv("USER_CACHE_TTL", "30"))
 SEARCH_CACHE_TTL: int = int(os.getenv("SEARCH_CACHE_TTL", "60"))
+
+# Add to the Config dataclass:
+
+# ===== Character Display =====
+CHARACTER_DISPLAY_TIMEOUT: int = int(os.getenv("CHARACTER_DISPLAY_TIMEOUT", "300"))  # 5 minutes
+
+# ===== Logging Channel =====
+LOG_CHANNEL: str = field(
+    default_factory=lambda: os.getenv("LOG_CHANNEL", "-1002155818429")
+)
