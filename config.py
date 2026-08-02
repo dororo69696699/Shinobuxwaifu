@@ -242,3 +242,10 @@ OWNER_DISPLAY_NAME: str = field(
 BOT_USERNAME: Optional[str] = field(
     default_factory=lambda: os.getenv("BOT_USERNAME", "")
 )
+
+# Add to the Config dataclass:
+
+# ===== Inline Search =====
+INLINE_CACHE_TTL: int = int(os.getenv("INLINE_CACHE_TTL", "300"))
+USER_CACHE_TTL: int = int(os.getenv("USER_CACHE_TTL", "30"))
+SEARCH_CACHE_TTL: int = int(os.getenv("SEARCH_CACHE_TTL", "60"))
