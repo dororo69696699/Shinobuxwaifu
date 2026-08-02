@@ -59,3 +59,7 @@ LOG_CHANNEL=-1002155818429
 # ----- Reactions -----
 REACTIONS_ENABLED=true
 REACTION_EMOJIS=👍,❤️,🔥,🎉,✨,🥰,🤩,💘,😏,🤯,⚡️,🏆,🤭,💖
+
+# ----- Economy -----
+DAILY_REWARD=100
+WEEKLY_REWARD=2000
