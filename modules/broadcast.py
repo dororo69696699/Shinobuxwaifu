@@ -20,7 +20,7 @@ from database.models import get_collection
 router = Router(name="broadcast")
 
 
-@router.message(Command(["bcast", "broadcast"]), AdminOrVIPFilter())
+@router.message(Command("bcast", "broadcast"), AdminOrVIPFilter())
 async def broadcast_command(message: Message) -> None:
     """Handle /broadcast command."""
     if not message.reply_to_message:
