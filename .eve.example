@@ -1,65 +1,13 @@
-# ==========================================
-# WaifuBot Environment Variables
-# ==========================================
-
-# ----- Telegram API Credentials -----
-# Get from https://my.telegram.org/apps
-BOT_TOKEN=1234567890:ABCdefGHIjklMNOpqrsTUVwxyz
-API_ID=12345678
-API_HASH=abcdef1234567890abcdef1234567890
-
-# ----- Database -----
-# MongoDB connection URI
+BOT_TOKEN=your_bot_token_here
 MONGO_URI=mongodb://localhost:27017
-BACKUP_MONGO_URI=mongodb://backup:27017
 DB_NAME=WAIFUBOT
-
-# ----- Channels & Chats -----
-# Force join channel (ID or @username)
+OWNER_ID=123456789
 FORCE_JOIN=-1001234567890
 BOT_LOGGING=-1009876543210
-SUPPORT_CHAT=-1001111111111
-UPDATE_CHAT=-1002222222222
-MUSIC_JOIN=-1003333333333
-
-# Character channel (for waifu images)
-CHARA_CHANNEL_ID=-1004305990907
-
-# ----- Admin -----
-# Owner Telegram User ID
-OWNER_ID=123456789
-
-# ----- APIs -----
-# ImgBB API key for image hosting
-IMGBB_API_KEY=your_imgbb_api_key_here
-
-# ----- Media -----
-START_MEDIA_1=https://files.catbox.moe/5zrb1a.mp4
-START_MEDIA_2=https://files.catbox.moe/5zrb1a.mp4
-
-PHOTO_URL_1=https://i.ibb.co/v6H9qNn7/file-0000000099dc71f5a902afba055b1567.png
-PHOTO_URL_2=https://i.ibb.co/v6H9qNn7/file-0000000099dc71f5a902afba055b1567.png
-
-STATS_IMG=https://files.catbox.moe/gknnju.jpg
-
-# ----- Notifications -----
-STARTUP_IMAGE=https://files.catbox.moe/ehv507.jpeg
-OWNER_DISPLAY_NAME=@sukuna_dev
-
-# ----- Bot Username -----
-BOT_USERNAME=Gaming_X_World_Bot
-
-
-# ----- Character Display -----
-CHARACTER_DISPLAY_TIMEOUT=300
-
-# ----- Logging -----
-LOG_CHANNEL=-1002155818429
-
-# ----- Reactions -----
-REACTIONS_ENABLED=true
-REACTION_EMOJIS=👍,❤️,🔥,🎉,✨,🥰,🤩,💘,😏,🤯,⚡️,🏆,🤭,💖
-
-# ----- Economy -----
 DAILY_REWARD=100
 WEEKLY_REWARD=2000
+START_MEDIA_1=https://files.catbox.moe/5zrb1a.mp4
+START_MEDIA_2=https://files.catbox.moe/5zrb1a.mp4
+SUPPORT_CHAT=https://t.me/+fPjchISAGnc3OGJl
+UPDATE_CHAT=https://t.me/+wjJbHQ9DQzM1OTE1
+OWNER_USERNAME=EGOIST_6969
