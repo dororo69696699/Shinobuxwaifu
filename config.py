@@ -259,3 +259,12 @@ CHARACTER_DISPLAY_TIMEOUT: int = int(os.getenv("CHARACTER_DISPLAY_TIMEOUT", "300
 LOG_CHANNEL: str = field(
     default_factory=lambda: os.getenv("LOG_CHANNEL", "-1002155818429")
 )
+
+# Add to the Config dataclass:
+
+# ===== Reactions =====
+REACTIONS_ENABLED: bool = os.getenv("REACTIONS_ENABLED", "true").lower() == "true"
+REACTION_EMOJIS: str = field(
+    default_factory=lambda: os.getenv("REACTION_EMOJIS", "")
+)
+# Example: REACTION_EMOJIS="👍,❤️,🔥,🎉,✨"
