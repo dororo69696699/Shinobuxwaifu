@@ -152,4 +152,4 @@ __all__ = [
     "get_all_help_entries",
     "get_help_data",
     "HELP_DATA",
-  ]
+]
