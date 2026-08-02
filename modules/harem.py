@@ -25,7 +25,7 @@ from utils.inline import get_user_collection
 router = Router(name="harem")
 
 
-@router.message(Command(["harem", "collection"]))
+@router.message(Command("harem", "collection"))
 async def harem_command(message: Message) -> None:
     """Handle /harem or /collection command."""
     user_id = message.from_user.id
