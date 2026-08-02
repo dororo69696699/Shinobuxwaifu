@@ -55,3 +55,7 @@ CHARACTER_DISPLAY_TIMEOUT=300
 
 # ----- Logging -----
 LOG_CHANNEL=-1002155818429
+
+# ----- Reactions -----
+REACTIONS_ENABLED=true
+REACTION_EMOJIS=👍,❤️,🔥,🎉,✨,🥰,🤩,💘,😏,🤯,⚡️,🏆,🤭,💖
