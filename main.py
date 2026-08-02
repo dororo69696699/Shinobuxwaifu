@@ -10,6 +10,7 @@ from config import BOT_TOKEN
 from database.manager import init_db
 from modules import register_all_modules
 from callbacks import register_all_callbacks
+from handlers import register_all_handlers
 from middleware import setup_middleware
 
 logging.basicConfig(
@@ -37,6 +38,7 @@ async def main():
     await setup_middleware(dp)
     register_all_modules(dp)
     register_all_callbacks(dp)
+    register_all_handlers(dp)
     
     logger.info("✅ Bot ready!")
     
