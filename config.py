@@ -268,3 +268,9 @@ REACTION_EMOJIS: str = field(
     default_factory=lambda: os.getenv("REACTION_EMOJIS", "")
 )
 # Example: REACTION_EMOJIS="👍,❤️,🔥,🎉,✨"
+
+# Add to Config dataclass:
+
+# ===== Economy =====
+DAILY_REWARD: int = int(os.getenv("DAILY_REWARD", "100"))
+WEEKLY_REWARD: int = int(os.getenv("WEEKLY_REWARD", "2000"))
