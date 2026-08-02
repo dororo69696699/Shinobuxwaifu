@@ -1,4 +1,3 @@
-
 import os
 from dotenv import load_dotenv
 
@@ -20,4 +19,5 @@ START_MEDIA = [
 
 SUPPORT_CHAT = os.getenv("SUPPORT_CHAT", "https://t.me/+fPjchISAGnc3OGJl")
 UPDATE_CHAT = os.getenv("UPDATE_CHAT", "https://t.me/+wjJbHQ9DQzM1OTE1")
+FORCE_JOIN_LINK = os.getenv("FORCE_JOIN_LINK", UPDATE_CHAT)
 OWNER_USERNAME = os.getenv("OWNER_USERNAME", "EGOIST_6969")
