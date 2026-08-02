@@ -22,7 +22,7 @@ from config import FORCE_JOIN_LINK
 router = Router(name="claim")
 
 
-@router.message(Command(["hclaim", "claim"]))
+@router.message(Command("hclaim", "claim"))
 async def claim_command(message: Message) -> None:
     """Handle /claim or /hclaim command."""
     user_id = message.from_user.id
