@@ -28,7 +28,7 @@ first_correct_guesses = {}
 user_guess_progress = {}
 
 
-@router.message(Command(["guess", "protecc", "collect", "grab", "hunt"]))
+@router.message(Command("guess", "protecc", "collect", "grab", "hunt"))
 async def guess_command(message: Message) -> None:
     """Handle /guess command."""
     chat_id = message.chat.id
