@@ -41,3 +41,10 @@ PHOTO_URL_1=https://i.ibb.co/v6H9qNn7/file-0000000099dc71f5a902afba055b1567.png
 PHOTO_URL_2=https://i.ibb.co/v6H9qNn7/file-0000000099dc71f5a902afba055b1567.png
 
 STATS_IMG=https://files.catbox.moe/gknnju.jpg
+
+# ----- Notifications -----
+STARTUP_IMAGE=https://files.catbox.moe/ehv507.jpeg
+OWNER_DISPLAY_NAME=@sukuna_dev
+
+# ----- Bot Username -----
+BOT_USERNAME=Gaming_X_World_Bot
