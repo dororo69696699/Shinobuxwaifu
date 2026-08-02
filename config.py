@@ -227,3 +227,18 @@ __all__ = [
     'Config',
     'get_config',
   ]
+
+# Add to the Config dataclass:
+
+# ===== Notifications =====
+STARTUP_IMAGE: str = field(
+    default_factory=lambda: os.getenv("STARTUP_IMAGE", "https://files.catbox.moe/ehv507.jpeg")
+)
+OWNER_DISPLAY_NAME: str = field(
+    default_factory=lambda: os.getenv("OWNER_DISPLAY_NAME", "")
+)
+
+# ===== Bot Username =====
+BOT_USERNAME: Optional[str] = field(
+    default_factory=lambda: os.getenv("BOT_USERNAME", "")
+)
