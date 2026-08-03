@@ -1,24 +1,23 @@
-FROM python:3.10-slim
+FROM python:3.11-slim
 
-# Set working directory
+# Prevent Python from writing .pyc files & enable unbuffered logs
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1
+
 WORKDIR /app
 
 # Install system dependencies
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
     wkhtmltopdf \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements first for better caching
+# Copy and install Python dependencies
 COPY requirements.txt .
-
-# Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy application code
+# Copy remaining source code
 COPY . .
 
-# Set environment variables
-ENV PYTHONUNBUFFERED=1
-
-# Run the bot
+# Launch application
 CMD ["python", "main.py"]
