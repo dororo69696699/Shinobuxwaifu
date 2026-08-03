@@ -1,13 +1,3 @@
-# ==========================================
-# Creator: MrZyro
-# Telegram: @MrZyro_dev
-# GitHub: https://github.com/MrZyro
-# ==========================================
-
-"""
-Upload Command - Add new character (Admin only)
-"""
-
 import os
 import base64
 import aiohttp
@@ -25,18 +15,17 @@ router = Router(name="upload")
 
 @router.message(Command("upload"), AdminOrVIPFilter())
 async def upload_command(message: Message) -> None:
-    """Handle /upload command."""
     args = message.text.split()
     if len(args) != 4:
         await message.reply(
-            "Usage: `/upload name anime rarity_number`\n"
+            "Usage: <code>/upload name anime rarity_number</code>\n"
             "Reply to an image with this command.",
             parse_mode=ParseMode.HTML
         )
         return
     
-    if not message.reply_to_message:
-        await message.reply("Please reply to an image.", parse_mode=ParseMode.HTML)
+    if not message.reply_to_message or not message.reply_to_message.photo:
+        await message.reply("Please reply to an image file.", parse_mode=ParseMode.HTML)
         return
     
     name = args[1].replace('-', ' ').title()
@@ -50,20 +39,12 @@ async def upload_command(message: Message) -> None:
         await message.reply("Invalid rarity number. Check /rarity for valid numbers.")
         return
     
-    # Get image from reply
-    photo = message.reply_to_message.photo
-    if not photo:
-        await message.reply("Please reply to an image file.")
-        return
-    
-    # Download image
-    file = await message.bot.get_file(photo[-1].file_id)
-    file_path = await file.download()
+    photo = message.reply_to_message.photo[-1]
+    file = await message.bot.get_file(photo.file_id)
+    file_path = await message.bot.download_file(file.file_path)
     
     try:
-        # Upload to ImgBB
-        with open(file_path, "rb") as f:
-            encoded = base64.b64encode(f.read()).decode("utf-8")
+        encoded = base64.b64encode(file_path.read()).decode("utf-8")
         
         async with aiohttp.ClientSession() as session:
             async with session.post(
@@ -77,10 +58,9 @@ async def upload_command(message: Message) -> None:
                     await message.reply("Failed to upload image.")
                     return
         
-        # Find next ID
         characters_collection = get_collection("characters")
         last = await characters_collection.find_one(sort=[("id", -1)])
-        next_id = str(int(last.get("id", 0)) + 1).zfill(2) if last else "01"
+        next_id = str(int(last.get("id", 0)) + 1).zfill(2) if last and last.get("id", "").isdigit() else "01"
         
         character = {
             "id": next_id,
@@ -101,9 +81,5 @@ async def upload_command(message: Message) -> None:
             f"🆔 ID: {next_id}",
             parse_mode=ParseMode.HTML
         )
-        
     except Exception as e:
         await message.reply(f"❌ Upload failed: {str(e)}")
-    finally:
-        if os.path.exists(file_path):
-            os.remove(file_path)
