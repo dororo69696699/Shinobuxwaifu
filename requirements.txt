@@ -1,31 +1,41 @@
-# ==========================================
-# WaifuBot 2.0 - Requirements
-# ==========================================
+# Core Framework
+aiogram>=3.1.0,<4.0.0
 
-# Core Framework - Aiogram 3.x only
-aiogram>=3.0.0,<4.0.0
+# Async Database & Cache
+motor>=3.3.2
+cachetools>=5.3.2
 
-# Database - Async MongoDB
-motor>=3.3.0
+# Async Utilities & Scheduling
+aiofiles>=23.2.1
+apscheduler>=3.10.4
+httpx[http2]>=0.27.0
+python-dotenv>=1.0.1
 
-# HTTP Client
-httpx[http2]>=0.25.0
+# System & Performance
+psutil>=5.9.8
+pyrate-limiter>=3.1.1
 
-# Environment Variables
-python-dotenv>=1.0.0
+# Image & Game Engines
+pillow>=10.2.0
+imgkit>=1.2.3
+chess>=1.10.0# Core Framework
+aiogram>=3.1.0,<4.0.0
 
-# Utilities
-cachetools>=5.3.0
-pyrate-limiter>=3.1.0
-apscheduler>=3.10.0
-aiofiles>=23.2.0
+# Async Database & Cache
+motor>=3.3.2
+cachetools>=5.3.2
 
-# Image Processing
-pillow>=10.0.0
-imgkit>=1.2.0
+# Async Utilities & Scheduling
+aiofiles>=23.2.1
+apscheduler>=3.10.4
+httpx[http2]>=0.27.0
+python-dotenv>=1.0.1
 
-# Games
+# System & Performance
+psutil>=5.9.8
+pyrate-limiter>=3.1.1
+
+# Image & Game Engines
+pillow>=10.2.0
+imgkit>=1.2.3
 chess>=1.10.0
-
-# Optional: System stats for /ping extended
-psutil>=5.9.0
