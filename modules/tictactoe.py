@@ -20,16 +20,12 @@ from database.models import get_user, update_user, add_balance, get_collection
 
 router = Router(name="tictactoe")
 
-# Collections
-games_collection = get_collection("ox_games")
-stats_collection = get_collection("ox_stats")
-
 MIN_BET = 100
 MAX_BET = 100000
 
 
-def check_winner(board):
-    """Check if there's a winner."""
+def check_winner(board: list) -> str | None:
+    """Check if there's a winner on the 3x3 board."""
     for r in range(3):
         if board[r][0] != "" and board[r][0] == board[r][1] == board[r][2]:
             return board[r][0]
@@ -43,7 +39,7 @@ def check_winner(board):
     return None
 
 
-def is_board_full(board):
+def is_board_full(board: list) -> bool:
     """Check if board is full."""
     for r in range(3):
         for c in range(3):
@@ -53,7 +49,7 @@ def is_board_full(board):
 
 
 def make_board_keyboard(game_id: str, board: list) -> InlineKeyboardMarkup:
-    """Generate board keyboard."""
+    """Generate board inline keyboard."""
     keyboard = []
     for r in range(3):
         row = []
@@ -64,7 +60,7 @@ def make_board_keyboard(game_id: str, board: list) -> InlineKeyboardMarkup:
                 emoji = "❌"
             elif val == "O":
                 emoji = "⭕"
-            row.append(InlineKeyboardButton(emoji, callback_data=f"ox_play_{game_id}_{r}_{c}"))
+            row.append(InlineKeyboardButton(text=emoji, callback_data=f"ox_play_{game_id}_{r}_{c}"))
         keyboard.append(row)
     return InlineKeyboardMarkup(inline_keyboard=keyboard)
 
@@ -72,6 +68,7 @@ def make_board_keyboard(game_id: str, board: list) -> InlineKeyboardMarkup:
 @router.message(Command("ox"))
 async def host_ox_game(message: Message) -> None:
     """Host a Tic Tac Toe game."""
+    games_collection = get_collection("ox_games")
     user_id = message.from_user.id
     args = message.text.split()
     
@@ -89,7 +86,7 @@ async def host_ox_game(message: Message) -> None:
         await message.reply(f"❌ Bet must be between {MIN_BET} and {MAX_BET}!", parse_mode=ParseMode.HTML)
         return
     
-    # Check existing game
+    # Check existing active game
     existing = await games_collection.find_one({
         "status": {"$in": ["lobby", "playing"]},
         "$or": [{"player1": user_id}, {"player2": user_id}]
@@ -98,10 +95,11 @@ async def host_ox_game(message: Message) -> None:
         await message.reply("❌ You already have an active game!", parse_mode=ParseMode.HTML)
         return
     
-    # Check balance
-    balance = await get_user_balance(user_id)
+    # Check balance using get_user
+    user = await get_user(user_id)
+    balance = user.get("balance", 0) if user else 0
     if balance < bet:
-        await message.reply(f"❌ Insufficient balance! You have {balance}.", parse_mode=ParseMode.HTML)
+        await message.reply(f"❌ Insufficient balance! You have {balance} petals.", parse_mode=ParseMode.HTML)
         return
     
     # Deduct host balance
@@ -130,8 +128,8 @@ async def host_ox_game(message: Message) -> None:
     await games_collection.insert_one(game_data)
     
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton("🎮 Join Game", callback_data=f"join_ox_{game_id}")],
-        [InlineKeyboardButton("❌ Cancel", callback_data=f"cancel_ox_{game_id}")]
+        [InlineKeyboardButton(text="🎮 Join Game", callback_data=f"join_ox_{game_id}")],
+        [InlineKeyboardButton(text="❌ Cancel", callback_data=f"cancel_ox_{game_id}")]
     ])
     
     sent = await message.reply(
@@ -152,6 +150,7 @@ async def host_ox_game(message: Message) -> None:
 @router.callback_query(lambda c: c.data.startswith("join_ox_"))
 async def join_ox_callback(callback: CallbackQuery) -> None:
     """Join a Tic Tac Toe game."""
+    games_collection = get_collection("ox_games")
     game_id = callback.data.split("_")[2]
     user_id = callback.from_user.id
     
@@ -169,19 +168,19 @@ async def join_ox_callback(callback: CallbackQuery) -> None:
         return
     
     # Check balance
-    balance = await get_user_balance(user_id)
+    user = await get_user(user_id)
+    balance = user.get("balance", 0) if user else 0
     if balance < game["bet"]:
         await callback.answer(f"Insufficient! Need {game['bet']} petals.", show_alert=True)
         return
     
     await add_balance(user_id, -game["bet"])
     
-    # Assign symbols
+    # Assign symbols and turn
     players = [game["player1"], user_id]
     random.shuffle(players)
-    symbol_x = players[0]
-    symbol_o = players[1]
-    first_turn = random.choice([game["player1"], user_id])
+    symbol_x, symbol_o = players[0], players[1]
+    first_turn = random.choice(players)
     
     await games_collection.update_one(
         {"game_id": game_id},
@@ -225,6 +224,7 @@ async def join_ox_callback(callback: CallbackQuery) -> None:
 @router.callback_query(lambda c: c.data.startswith("cancel_ox_"))
 async def cancel_ox_callback(callback: CallbackQuery) -> None:
     """Cancel a Tic Tac Toe game."""
+    games_collection = get_collection("ox_games")
     game_id = callback.data.split("_")[2]
     user_id = callback.from_user.id
     
@@ -247,10 +247,10 @@ async def cancel_ox_callback(callback: CallbackQuery) -> None:
 @router.callback_query(lambda c: c.data.startswith("ox_play_"))
 async def play_ox_callback(callback: CallbackQuery) -> None:
     """Make a move in Tic Tac Toe."""
+    games_collection = get_collection("ox_games")
     data = callback.data.split("_")
     game_id = data[2]
-    row = int(data[3])
-    col = int(data[4])
+    row, col = int(data[3]), int(data[4])
     user_id = callback.from_user.id
     
     game = await games_collection.find_one({"game_id": game_id})
@@ -262,7 +262,7 @@ async def play_ox_callback(callback: CallbackQuery) -> None:
         await callback.answer("Game ended!", show_alert=True)
         return
     
-    if user_id != game["player1"] and user_id != game["player2"]:
+    if user_id not in (game["player1"], game["player2"]):
         await callback.answer("Not your game!", show_alert=True)
         return
     
@@ -279,9 +279,8 @@ async def play_ox_callback(callback: CallbackQuery) -> None:
     symbol = "X" if game["symbol_x"] == user_id else "O"
     board[row][col] = symbol
     
-    # Check winner
+    # Check win/draw states
     winner = check_winner(board)
-    is_draw = False
     
     if winner:
         winner_id = game["symbol_x"] if winner == "X" else game["symbol_o"]
@@ -300,7 +299,7 @@ async def play_ox_callback(callback: CallbackQuery) -> None:
         await callback.answer(f"{winner_name} won!")
         return
         
-    elif is_board_full(board):
+    if is_board_full(board):
         await games_collection.update_one(
             {"game_id": game_id},
             {"$set": {"board": board, "status": "ended"}}
@@ -316,7 +315,7 @@ async def play_ox_callback(callback: CallbackQuery) -> None:
         await callback.answer("Draw!")
         return
     
-    # Continue game
+    # Switch turn and continue game
     next_turn = game["player2"] if game["turn"] == game["player1"] else game["player1"]
     await games_collection.update_one(
         {"game_id": game_id},
