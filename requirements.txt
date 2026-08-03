@@ -18,7 +18,8 @@ pyrate-limiter>=3.1.1
 # Image & Game Engines
 pillow>=10.2.0
 imgkit>=1.2.3
-chess>=1.10.0# Core Framework
+chess>=1.10.0
+# Core Framework
 aiogram>=3.1.0,<4.0.0
 
 # Async Database & Cache
