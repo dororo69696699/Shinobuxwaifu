@@ -21,12 +21,11 @@ from database.models import get_collection, add_balance, get_user
 
 router = Router(name="redeem")
 
-redeem_collection = get_collection("redeem_codes")
-
 
 @router.message(Command("gen"), AdminOrVIPFilter())
 async def generate_code(message: Message) -> None:
-    """Generate a redeem code (VIP only)."""
+    """Generate a redeem code (VIP/Admin only)."""
+    redeem_collection = get_collection("redeem_codes")
     args = message.text.split()
     user_id = message.from_user.id
     
@@ -115,6 +114,7 @@ async def generate_code(message: Message) -> None:
 @router.message(Command("redeem"))
 async def redeem_code(message: Message) -> None:
     """Redeem a code."""
+    redeem_collection = get_collection("redeem_codes")
     args = message.text.split()
     user_id = message.from_user.id
     
@@ -175,12 +175,12 @@ async def redeem_code(message: Message) -> None:
             return
         
         users_collection = get_collection("users")
-        for _ in range(copies):
-            await users_collection.update_one(
-                {"id": user_id},
-                {"$push": {"characters": char}},
-                upsert=True
-            )
+        # Efficient batch array push using $each
+        await users_collection.update_one(
+            {"id": user_id},
+            {"$push": {"characters": {"$each": [char] * copies}}},
+            upsert=True
+        )
         
         await redeem_collection.update_one(
             {"code": code},
