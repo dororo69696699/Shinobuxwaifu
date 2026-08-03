@@ -1,11 +1,11 @@
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
-
 from config import MONGO_URI, DB_NAME
 
 _db: AsyncIOMotorDatabase = None
 
 
 async def init_db() -> None:
+    """Initialize MongoDB connection and setup indexes."""
     global _db
     client = AsyncIOMotorClient(MONGO_URI)
     _db = client[DB_NAME]
@@ -17,8 +17,12 @@ async def init_db() -> None:
 
 
 def get_db() -> AsyncIOMotorDatabase:
+    """Get the active database instance."""
+    if _db is None:
+        raise RuntimeError("Database not initialized! Ensure init_db() is called on startup.")
     return _db
 
 
 def get_collection(name: str):
-    return _db[name]
+    """Retrieve a MongoDB collection by name safely."""
+    return get_db()[name]
