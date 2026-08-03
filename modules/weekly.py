@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 from aiogram import Router
 from aiogram.types import Message
 from aiogram.filters import Command
+from aiogram.enums import ParseMode
 
 from config import WEEKLY_REWARD
 from database.models import get_user, update_user, add_balance
@@ -21,8 +22,7 @@ async def weekly_command(message: Message) -> None:
     
     user = await get_user(user_id)
     now = datetime.now()
-    week_start = now - timedelta(days=now.weekday())
-    week_start = week_start.replace(hour=0, minute=0, second=0, microsecond=0)
+    week_start = (now - timedelta(days=now.weekday())).replace(hour=0, minute=0, second=0, microsecond=0)
     
     if user and user.get("last_weekly"):
         last_weekly = user["last_weekly"]
@@ -36,16 +36,16 @@ async def weekly_command(message: Message) -> None:
             return
     
     await add_balance(user_id, WEEKLY_REWARD)
-    await update_user(user_id, {"last_weekly": datetime.now()})
+    await update_user(user_id, {"last_weekly": now})
     
-    new_balance = await get_user_balance(user_id)
-    user_name = html.escape(message.from_user.first_name)
+    updated_user = await get_user(user_id)
+    new_balance = updated_user.get("balance", 0) if updated_user else WEEKLY_REWARD
     
     await message.reply(
         f"🦋 <b>Weekly Reward</b> 🎉\n\n"
-        f"<blockquote>\n"
-        f"🌸 +{WEEKLY_REWARD} Wisteria Petals!\n"
-        f"💳 New Balance: {new_balance}\n"
+        f"<blockquote>"
+        f"🌸 +{WEEKLY_REWARD:,} Wisteria Petals!\n"
+        f"💳 New Balance: {new_balance:,}\n"
         f"</blockquote>",
-        parse_mode="HTML",
+        parse_mode=ParseMode.HTML,
     )
