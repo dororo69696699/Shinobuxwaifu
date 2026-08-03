@@ -64,7 +64,7 @@ async def get_drop_character():
     return characters[0] if characters else None
 
 
-@router.message(Command(["wheel", "spin"]))
+@router.message(Command("wheel", "spin"))
 async def spin_wheel(message: Message) -> None:
     """Handle /spin or /wheel command."""
     user_id = message.from_user.id
