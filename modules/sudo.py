@@ -1,13 +1,3 @@
-# ==========================================
-# Creator: MrZyro
-# Telegram: @MrZyro_dev
-# GitHub: https://github.com/MrZyro
-# ==========================================
-
-"""
-Sudo User Management - Admin power management
-"""
-
 from aiogram import Router
 from aiogram.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.filters import Command
@@ -15,21 +5,16 @@ from aiogram.enums import ParseMode
 
 from filters.admin import AdminOrVIPFilter, OwnerFilter
 from database.models import get_collection
-from config import OWNER_ID
 
 router = Router(name="sudo")
 
 sudo_collection = get_collection("sudo_users")
-
 ALL_POWERS = ["add", "del", "up", "app", "inv", "VIP"]
 
 
 @router.message(Command("sudolist"), OwnerFilter())
 async def sudo_list(message: Message) -> None:
-    """List all sudo users (Owner only)."""
-    cursor = sudo_collection.find({})
-    users = await cursor.to_list(length=None)
-    
+    users = await sudo_collection.find({}).to_list(length=None)
     if not users:
         await message.reply("No sudo users found.", parse_mode=ParseMode.HTML)
         return
@@ -46,30 +31,22 @@ async def sudo_list(message: Message) -> None:
 
 @router.message(Command("addsudo"), AdminOrVIPFilter())
 async def add_sudo(message: Message) -> None:
-    """Add sudo user (VIP only)."""
     if not message.reply_to_message:
         await message.reply("Reply to a user to add them as sudo.", parse_mode=ParseMode.HTML)
         return
     
     user_id = message.reply_to_message.from_user.id
-    
     existing = await sudo_collection.find_one({"_id": user_id})
     if existing:
         await message.reply(f"User <code>{user_id}</code> is already a sudo.", parse_mode=ParseMode.HTML)
         return
     
-    await sudo_collection.update_one(
-        {"_id": user_id},
-        {"$set": {"powers": {"add": True}}},
-        upsert=True
-    )
-    
+    await sudo_collection.update_one({"_id": user_id}, {"$set": {"powers": {"add": True}}}, upsert=True)
     await message.reply(f"✅ User <code>{user_id}</code> added as sudo with 'add' power.", parse_mode=ParseMode.HTML)
 
 
 @router.message(Command("removesudo"), AdminOrVIPFilter())
 async def remove_sudo(message: Message) -> None:
-    """Remove sudo user (VIP only)."""
     if message.reply_to_message:
         user_id = message.reply_to_message.from_user.id
     elif len(message.text.split()) > 1 and message.text.split()[1].isdigit():
@@ -87,41 +64,27 @@ async def remove_sudo(message: Message) -> None:
 
 @router.message(Command("editsudo"), AdminOrVIPFilter())
 async def edit_sudo(message: Message) -> None:
-    """Edit sudo powers (VIP only)."""
     if not message.reply_to_message:
         await message.reply("Reply to a sudo user to edit their powers.", parse_mode=ParseMode.HTML)
         return
     
     user_id = message.reply_to_message.from_user.id
     user_data = await sudo_collection.find_one({"_id": user_id})
-    
     if not user_data:
         await message.reply("User is not a sudo.", parse_mode=ParseMode.HTML)
         return
     
     powers = user_data.get("powers", {})
-    buttons = []
-    for power in ALL_POWERS:
-        status = "✅" if powers.get(power, False) else "❌"
-        buttons.append([
-            InlineKeyboardButton(f"{power}", callback_data="noop"),
-            InlineKeyboardButton(f"{status}", callback_data=f"toggle_power_{user_id}_{power}")
-        ])
+    buttons = [[InlineKeyboardButton(f"{p}", callback_data="noop"), InlineKeyboardButton("✅" if powers.get(p, False) else "❌", callback_data=f"toggle_power_{user_id}_{p}")] for p in ALL_POWERS]
     buttons.append([InlineKeyboardButton("🔒 Close", callback_data="close_keyboard")])
     
-    await message.reply(
-        f"Edit powers for <code>{user_id}</code>:",
-        reply_markup=InlineKeyboardMarkup(inline_keyboard=buttons),
-        parse_mode=ParseMode.HTML
-    )
+    await message.reply(f"Edit powers for <code>{user_id}</code>:", reply_markup=InlineKeyboardMarkup(inline_keyboard=buttons), parse_mode=ParseMode.HTML)
 
 
-@router.callback_query(lambda c: c.data.startswith("toggle_power_"))
+@router.callback_query(lambda c: c.data and c.data.startswith("toggle_power_"))
 async def toggle_power(callback: CallbackQuery) -> None:
-    """Toggle sudo power."""
     data = callback.data.split("_")
-    user_id = int(data[2])
-    power = data[3]
+    user_id, power = int(data[2]), data[3]
     
     user_data = await sudo_collection.find_one({"_id": user_id})
     if not user_data:
@@ -130,31 +93,17 @@ async def toggle_power(callback: CallbackQuery) -> None:
     
     current = user_data.get("powers", {}).get(power, False)
     new_status = not current
-    
-    await sudo_collection.update_one(
-        {"_id": user_id},
-        {"$set": {f"powers.{power}": new_status}}
-    )
-    
+    await sudo_collection.update_one({"_id": user_id}, {"$set": {f"powers.{power}": new_status}})
     await callback.answer(f"Power '{power}' set to {new_status}", show_alert=True)
     
-    # Refresh keyboard
     powers = user_data.get("powers", {})
     powers[power] = new_status
-    buttons = []
-    for p in ALL_POWERS:
-        status = "✅" if powers.get(p, False) else "❌"
-        buttons.append([
-            InlineKeyboardButton(f"{p}", callback_data="noop"),
-            InlineKeyboardButton(f"{status}", callback_data=f"toggle_power_{user_id}_{p}")
-        ])
+    buttons = [[InlineKeyboardButton(f"{p}", callback_data="noop"), InlineKeyboardButton("✅" if powers.get(p, False) else "❌", callback_data=f"toggle_power_{user_id}_{p}")] for p in ALL_POWERS]
     buttons.append([InlineKeyboardButton("🔒 Close", callback_data="close_keyboard")])
-    
     await callback.message.edit_reply_markup(reply_markup=InlineKeyboardMarkup(inline_keyboard=buttons))
 
 
 @router.callback_query(lambda c: c.data == "close_keyboard")
 async def close_keyboard(callback: CallbackQuery) -> None:
-    """Close sudo edit keyboard."""
     await callback.message.edit_reply_markup(reply_markup=None)
     await callback.answer()
